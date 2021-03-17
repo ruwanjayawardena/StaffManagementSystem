@@ -1,0 +1,321 @@
+<?php include './access_control/session_controler.php'; ?> 
+<!doctype html>
+<html lang="en">
+    <head>
+		<?php include './includes/head-block.php'; ?>        
+    </head>
+    <body>
+        <!--navbar-->
+		<?php include 'includes/backend-navbar.php'; ?>       
+
+        <!--body content-->
+        <section class="wrapper">
+            <div class="container-fluid">
+                <div class="row">
+                    <div class="col-lg-12 col-sm-12">
+                        <h4 class="text-uppercase admin-page-heading"><i class="fas fa-map-marked-alt"></i> GN Division  &nbsp;&nbsp;<button class="btn btn-light d-print-none" onclick="window.history.back(-1);"><i class="fas fa-chevron-circle-left"></i>&nbsp;Back</button></h4>                       
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-lg-5 col-sm-6 pb-4">
+                        <form id="gndivisionform" novalidate>
+                            <input type="hidden" class="form-control" id="gnd_id"> 
+							<div class="form-group">
+                                <label for="cmbDistrict">Choose District</label>
+                                <select class="col-12 form-control cmbDistrict form-control-chosen" data-placeholder="Choose a District..." required>
+                                    <option value="" disabled selected>Loading...</option>
+                                </select>
+                                <div class="valid-feedback">
+                                    <i class="fas fa-lg fa-check-circle"></i> Looks good! 
+                                </div>
+                                <div class="invalid-feedback">
+                                    <i class="fas fa-lg fa-exclamation-circle"></i> Please choose district
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label for="cmbDSOffice">Choose DS Office</label>
+                                <select class="col-12 form-control cmbDSOffice form-control-chosen" data-placeholder="Choose a DS Office..." required>
+                                    <option value="" disabled selected>Loading...</option>
+                                </select>
+                                <div class="valid-feedback">
+                                    <i class="fas fa-lg fa-check-circle"></i> Looks good! 
+                                </div>
+                                <div class="invalid-feedback">
+                                    <i class="fas fa-lg fa-exclamation-circle"></i> Please choose DS office
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label for="gnd_name">GN Division</label>
+                                <input type="text" class="form-control" id="gnd_name" placeholder="GN Division" autocomplete="off" required>
+                                <div class="valid-feedback">
+                                    <i class="fas fa-lg fa-check-circle"></i> Looks good! 
+                                </div>
+                                <div class="invalid-feedback">
+                                    <i class="fas fa-lg fa-exclamation-circle"></i> Please enter GN Division
+                                </div>
+                            </div>                           
+                            <br>
+                            <div class="form-group form-controllers-div">
+                                <button class="btn btn-success" id="btn_save"><i class="fas fa-save"></i> Save</button>
+                                <button class="btn btn-warning" id="btn_edit" hidden><i class="fas fa-edit"></i> Update</button>
+                                <button class="btn btn-light" id="btn_clear"><i class="fas fa-undo"></i> Clear</button>
+                            </div>
+							<div class="form-group controlMsg"></div>
+                        </form>
+                    </div>
+                    <div class="col">
+                        <div class="table-responsive">
+                            <table id="tblGNDivision" class="table table-bordered table-hover" style="width:100%">
+                                <thead class="thead-dark">
+                                    <tr>                                                       
+
+                                        <th></th>                                
+                                        <th></th>                                
+                                        <th>GN Division</th>                                        
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </section>
+	<?php
+	include './includes/end-block.php';
+	include './includes/comboboxJS.php';
+	include './includes/commonJS.php';
+	?>  
+    <script>
+		function tblGNDivision(gnd_dsoffice, callback) {
+			var tbldata = "";
+			$.post('controllers/gndivisionController.php', {action: 'getAllGNDivision', gnd_dsoffice: gnd_dsoffice}, function (e) {
+				if (e === undefined || e.length === 0 || e === null) {
+					tbldata += '<tr>';
+					tbldata += '<td colspan="3" class="bg-danger text-center"> -- GN Division not available -- </td>';
+					tbldata += '</tr>';
+					$('#tblGNDivision tbody').html('').append(tbldata);
+				} else {
+					$.each(e, function (index, qdt) {
+						index++;
+						tbldata += '<tr>';
+						tbldata += '<td>';
+						tbldata += '<div class="btn-group btn-group-sm">';
+						tbldata += '<button class="btn btn-info btn_select" value="' + qdt.gnd_id + '"><i class="fas fa-edit"></i></button>';
+						tbldata += '<button class="btn btn-danger btn_delete" value="' + qdt.gnd_id + '"><i class="fas fa-trash-alt"></i></button>';
+						tbldata += '</div>';
+						tbldata += '</td>';
+						tbldata += '<td></td>';
+						tbldata += '<td>' + qdt.gnd_name + '</td>';
+						tbldata += '</tr>';
+					});
+
+
+					if ($.fn.DataTable.isDataTable('#tblGNDivision')) {
+						//re initialize 
+						$('#tblGNDivision').DataTable().destroy();
+						$('#tblGNDivision tbody').empty();
+						$('#tblGNDivision tbody').html('').append(tbldata);
+						$('#tblGNDivision').DataTable({
+							responsive: {
+								details: {
+									type: 'column',
+									target: 'tr'
+								}
+							},
+							columnDefs: [
+								{className: 'control text-right', orderable: false, targets: 1},
+								{orderable: false, targets: 0}
+							],
+							order: [2, 'asc']
+						});
+					} else {
+						//initilized                    
+						$('#tblGNDivision tbody').html('').append(tbldata);
+						$('#tblGNDivision').DataTable({
+							responsive: {
+								details: {
+									type: 'column',
+									target: 'tr'
+								}
+							},
+							columnDefs: [
+								{className: 'control text-right', orderable: false, targets: 1},
+								{orderable: false, targets: 0}
+							],
+							order: [2, 'asc']
+						});
+					}
+
+					$('[data-toggle="tooltip"]').tooltip();
+				}
+
+
+				$('.btn_select').click(function () {
+					$('#btn_save').prop('hidden', true);
+					$('#btn_edit').prop('hidden', false);
+					var gnd_id = $(this).val();
+					$.post('controllers/gndivisionController.php', {action: 'getGNDivisionByID', gnd_id: gnd_id}, function (e) {
+						$.each(e, function (index, qdt) {
+							$('#gnd_id').val(qdt.gnd_id);
+							$('#gnd_name').val(qdt.gnd_name);
+						});
+					}, "json");
+				});
+
+				$('.btn_delete').click(function () {
+					var gnd_id = $(this).val();
+					swal({
+						title: "Are you sure?",
+						text: "Do you want to delete this GN Division ?",
+						type: "warning",
+						showCancelButton: true,
+						confirmButtonClass: "btn-danger",
+						cancelButtonClass: "btn-light",
+						confirmButtonText: "Yes, delete it!",
+						closeOnConfirm: false
+					}, function () {
+						$.post('controllers/gndivisionController.php', {action: 'deleteGNDivision', gnd_id: gnd_id}, function (e) {
+							if (parseInt(e.msgType) == 1) {
+								swal("Good Job!", e.msg, "success");
+								clearGNDivision();
+								tblGNDivision(gnd_dsoffice);
+							} else {
+								swal("Error!", e.msg, "error");
+							}
+						}, "json");
+					});
+				});
+
+				if (callback !== undefined) {
+					if (typeof callback === 'function') {
+						callback();
+					}
+				}
+			}, "json");
+		}
+
+		function saveDivision() {
+			var gnd_dsoffice = $('.cmbDSOffice').val();
+			var gnd_name = $('#gnd_name').val();
+			var postdata = {
+				action: "saveGNDivision",
+				gnd_name: gnd_name,
+				gnd_dsoffice: gnd_dsoffice
+			}
+			$.post('controllers/gndivisionController.php', postdata, function (e) {
+				if (parseInt(e.msgType) == 1) {
+					swal("Good job!", e.msg, "success");
+					clearGNDivision();
+					tblGNDivision(gnd_dsoffice);
+				} else {
+					swal("Alert !", e.msg, "error");
+				}
+			}, "json");
+		}
+
+		function editDivision() {
+			var gnd_id = $('#gnd_id').val();
+			var gnd_dsoffice = $('.cmbDSOffice').val();
+			var gnd_name = $('#gnd_name').val();
+			var postdata = {
+				action: "editGNDivision",
+				gnd_id: gnd_id,
+				gnd_name: gnd_name,
+				gnd_dsoffice: gnd_dsoffice
+			}
+			$.post('controllers/gndivisionController.php', postdata, function (e) {
+				if (parseInt(e.msgType) == 1) {
+					swal("Good job!", e.msg, "success");
+					clearGNDivision();
+					tblGNDivision(gnd_dsoffice);
+				} else {
+					swal("Alert !", e.msg, "error");
+				}
+			}, "json");
+		}
+
+		function clearGNDivision() {
+			$('#gnd_id').val('');
+			$('#gnd_name').val('');
+			$('#btn_save').prop('hidden', false);
+			$('#btn_edit').prop('hidden', true);
+			$('#gndivisionform').removeClass('was-validated');
+		}
+
+		$(document).ready(function () {
+			// Executes when the HTML document is loaded and the DOM is ready
+			cmbDistrict(false, function () {
+				var dsof_district = $('.cmbDistrict').val();
+				cmbDSOffice(dsof_district, false, function (dataAvailable) {
+					if (parseInt(dataAvailable) == 0) {
+						var controlMsg = '<div class="alert bg-warning"><strong>NOTE</strong> Data saving restricted! becasue of DS Offices not available.choose another data available one and try to add new GN division</div>';
+						$('.controlMsg').html('').append(controlMsg);
+						$('.form-controllers-div').prop('hidden', true);
+					} else {
+						$('.controlMsg').html('').append("");
+						$('.form-controllers-div').prop('hidden', false);
+					}
+					var gnd_dsoffice = $('.cmbDSOffice').val();
+					tblGNDivision(gnd_dsoffice);
+				});
+			});
+
+			$('.cmbDistrict').change(function () {
+				var dsof_district = $(this).val();
+				cmbDSOffice(dsof_district, false, function (dataAvailable) {
+					if (parseInt(dataAvailable) == 0) {
+						var controlMsg = '<div class="alert bg-warning"><strong>NOTE</strong> Data saving restricted! becasue of DS Offices not available.choose another data available one and try to add new GN division</div>';
+						$('.controlMsg').html('').append(controlMsg);
+						$('.form-controllers-div').prop('hidden', true);
+					} else {
+						$('.controlMsg').html('').append("");
+						$('.form-controllers-div').prop('hidden', false);
+					}
+					var gnd_dsoffice = $('.cmbDSOffice').val();
+					tblGNDivision(gnd_dsoffice);
+				});
+			});
+
+			$('.cmbDSOffice').change(function () {
+				var gnd_dsoffice = $('.cmbDSOffice').val();
+				tblGNDivision(gnd_dsoffice);
+			});
+
+			const form = $('#gndivisionform');
+
+			$('#btn_save').click(function (event) {
+				form.submit(false);
+				form.addClass('was-validated');
+				if (form[0].checkValidity() === false) {
+					event.preventDefault();
+					event.stopPropagation();
+				} else {
+					saveDivision();
+				}
+			});
+
+			$('#btn_edit').click(function (event) {
+				form.submit(false);
+				form.addClass('was-validated');
+				if (form[0].checkValidity() === false) {
+					event.preventDefault();
+					event.stopPropagation();
+				} else {
+					editDivision();
+				}
+			});
+
+			$('#btn_clear').click(function (event) {
+				form.submit(false);
+				clearGNDivision();
+			});
+
+
+		});
+    </script>
+</body>
+</html>
